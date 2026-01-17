@@ -33,9 +33,12 @@ for eid in email_ids[-5:]:
     subject, encoding = decode_header(msg["Subject"])[0]
     if isinstance(subject, bytes):
         subject = subject.decode(encoding or "utf-8", errors="ignore")
+    status, data = mail.fetch(eid, "(INTERNALDATE)")
+    print(data)
 
     sender = msg.get("From")
-    print(f"✉️ {sender} | {subject}")
+    date = msg.get("Date")
+    print(f"✉️ {sender} | {subject} | {date}")
 
 # 5. Déconnexion
 mail.logout()
