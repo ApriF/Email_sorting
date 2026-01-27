@@ -1,0 +1,116 @@
+import os
+import logging
+import email
+from email.header import decode_header, make_header
+from pathlib import Path
+
+
+class AttachmentHandler:
+    """
+    Handles saving and organizing email attachments into categorized folders.
+    Saves attachments to output/attachments/{category}/ directory structure.
+    """
+    
+    def __init__(self, base_path="output/attachments"):
+    
+        self.base_path = Path(base_path)
+        self.base_path.mkdir(parents=True, exist_ok=True)
+        logging.info(f"Attachment handler initialized with base path: {self.base_path}")
+    
+    def decode_str(self, value):
+        # Decode RFC 2047 encoded email headers safely.
+        if not value:
+            return ""
+        return str(make_header(decode_header(value)))
+    
+    def sanitize_filename(self, filename):
+        
+        # Sanitize filename to remove invalid characters for filesystem.
+        
+        
+        # Remove or replace invalid characters
+        invalid_chars = '<>:"/\\|?*'
+        sanitized = filename
+        for char in invalid_chars:
+            sanitized = sanitized.replace(char, '_')
+        
+        # Limit filename length
+        if len(sanitized) > 200:
+            name, ext = os.path.splitext(sanitized)
+            sanitized = name[:200] + ext
+        
+        return sanitized
+    
+    def extract_attachments(self, raw_email_bytes):
+        
+        # Extract attachment data from raw email bytes.
+        
+        msg = email.message_from_bytes(raw_email_bytes)
+        attachments = []
+        
+        if msg.is_multipart():
+            for part in msg.walk():
+                # Skip container parts
+                if part.is_multipart():
+                    continue
+                
+                disposition = part.get_content_disposition()
+                
+                # Check if this part is an attachment
+                if disposition == "attachment":
+                    filename = part.get_filename()
+                    if filename:
+                        decoded_filename = self.decode_str(filename)
+                        payload = part.get_payload(decode=True)
+                        
+                        if payload:
+                            attachments.append({
+                                'filename': decoded_filename,
+                                'data': payload
+                            })
+        
+        return attachments
+    
+    def save_attachments(self, raw_email_bytes, category, email_id=None):
+       
+        # Save attachments from an email to categorized folders.
+        
+       
+        attachments = self.extract_attachments(raw_email_bytes)
+        
+        if not attachments:
+            return []
+        
+        # Create category folder
+        category_path = self.base_path / category
+        category_path.mkdir(parents=True, exist_ok=True)
+        
+        saved_files = []
+        
+        for attachment in attachments:
+            try:
+                filename = self.sanitize_filename(attachment['filename'])
+                file_path = category_path / filename
+                
+                # Handle duplicate filenames
+                counter = 1
+                original_path = file_path
+                while file_path.exists():
+                    name, ext = os.path.splitext(original_path.name)
+                    file_path = category_path / f"{name}_{counter}{ext}"
+                    counter += 1
+                
+                # Write attachment data to file
+                with open(file_path, 'wb') as f:
+                    f.write(attachment['data'])
+                
+                saved_files.append(str(file_path))
+                log_msg = f"Saved attachment: {filename} to {category}/"
+                if email_id:
+                    log_msg += f" (Email ID: {email_id.decode()})"
+                logging.info(log_msg)
+                
+            except Exception as e:
+                logging.error(f"Failed to save attachment {attachment['filename']}: {e}")
+        
+        return saved_files
