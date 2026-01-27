@@ -17,7 +17,9 @@ class AttachmentHandler:
         """Decode RFC 2047 encoded email headers."""
         if not value:
             return ""
-        return str(make_header(decode_header(value)))
+        decoded_parts = decode_header(value)
+        header = make_header(decoded_parts)
+        return str(header)
     
     def sanitize_filename(self, filename):
         """Remove invalid filesystem characters from filename."""
@@ -37,22 +39,29 @@ class AttachmentHandler:
         msg = email.message_from_bytes(raw_email_bytes)
         attachments = []
         
-        if msg.is_multipart():
-            for part in msg.walk():
-                if part.is_multipart():
-                    continue
-                
-                if part.get_content_disposition() == "attachment":
-                    filename = part.get_filename()
-                    if filename:
-                        decoded_filename = self.decode_str(filename)
-                        payload = part.get_payload(decode=True)
-                        
-                        if payload:
-                            attachments.append({
-                                'filename': decoded_filename,
-                                'data': payload
-                            })
+        if not msg.is_multipart():
+            return attachments
+        
+        for part in msg.walk():
+            if part.is_multipart():
+                continue
+            
+            disposition = part.get_content_disposition()
+            if disposition != "attachment":
+                continue
+            
+            filename = part.get_filename()
+            if not filename:
+                continue
+            
+            decoded_filename = self.decode_str(filename)
+            payload = part.get_payload(decode=True)
+            
+            if payload:
+                attachments.append({
+                    'filename': decoded_filename,
+                    'data': payload
+                })
         
         return attachments
     
@@ -85,9 +94,11 @@ class AttachmentHandler:
                     f.write(attachment['data'])
                 
                 saved_files.append(str(file_path))
+                
                 log_msg = f"Saved attachment: {filename} to {category}/"
                 if email_id:
-                    log_msg += f" (Email ID: {email_id.decode()})"
+                    email_id_str = email_id.decode() if isinstance(email_id, bytes) else str(email_id)
+                    log_msg += f" (Email ID: {email_id_str})"
                 logging.info(log_msg)
                 
             except Exception as e:

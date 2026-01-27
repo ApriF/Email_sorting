@@ -90,8 +90,14 @@ class ReportGenerator:
                 
                 total = len(self.processed_emails) - self.error_count
                 if total > 0:
-                    for category, count in sorted(self.category_counts.items(), 
-                                                 key=lambda x: x[1], reverse=True):
+                    # Sort categories by count (descending)
+                    sorted_categories = sorted(
+                        self.category_counts.items(),
+                        key=lambda item: item[1],
+                        reverse=True
+                    )
+                    
+                    for category, count in sorted_categories:
                         percentage = (count / total) * 100
                         writer.writerow({
                             'category': category,
@@ -114,10 +120,10 @@ class ReportGenerator:
                 })
             
             logging.info(f"Summary report generated: {summary_path}")
-            logging.info(f"Total emails: {len(self.processed_emails)}, "
-                        f"Categories: {dict(self.category_counts)}, "
-                        f"Attachments: {self.attachment_count}, "
-                        f"Errors: {self.error_count}")
+            logging.info(f"Total emails: {len(self.processed_emails)}")
+            logging.info(f"Categories: {dict(self.category_counts)}")
+            logging.info(f"Attachments: {self.attachment_count}")
+            logging.info(f"Errors: {self.error_count}")
             
             return summary_path
             
