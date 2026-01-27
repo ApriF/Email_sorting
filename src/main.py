@@ -6,14 +6,16 @@ import parser.email_parser as parser
 import parser.classification as category
 from attachment import AttachmentHandler
 from reporting import ReportGenerator
+from database import EmailDatabase
 
 def main():
     setup_logger()
     logging.info("Starting email ingestion pipeline")
 
-    # Initialize attachment handler and report generator
+    # Initialize handlers
     attachment_handler = AttachmentHandler()
     report_generator = ReportGenerator()
+    database = EmailDatabase()
 
     try:
         with IMAPClient() as client:
@@ -45,6 +47,7 @@ def main():
 
                     # Handle attachments
                     has_attachments = len(email_data['attachments']) > 0
+                    saved_files = []
                     if has_attachments:
                         logging.info(f"Attachments found: {email_data['attachments']}")
                         saved_files = attachment_handler.save_attachments(
@@ -56,6 +59,18 @@ def main():
                             logging.info(f"Saved {len(saved_files)} attachment(s)")
                     else:
                         logging.info("No attachments found")
+
+                    # Save to database
+                    db_email_id = database.insert_email(
+                        email_data,
+                        email_category,
+                        has_attachments=has_attachments
+                    )
+                    
+                    # Save attachments to database
+                    for file_path in saved_files:
+                        filename = file_path.split('/')[-1] if '/' in file_path else file_path.split('\\')[-1]
+                        database.insert_attachment(db_email_id, filename, file_path, email_category)
 
                     # Record email for reporting
                     report_generator.record_email(
@@ -71,9 +86,10 @@ def main():
                 
                 except Exception as e:
                     logging.error(f"Failed to process email {email_id}: {e}", exc_info=True)
-                    # Record error in report
+                    # Record error in database and report
                     try:
                         email_data = parser.parse_email(raw_email)
+                        database.insert_email(email_data, "ERROR", error=str(e))
                         report_generator.record_email(
                             email_data, 
                             "ERROR", 
@@ -81,8 +97,10 @@ def main():
                         )
                     except:
                         # If parsing also fails, record minimal info
+                        error_data = {'sender': '', 'subject': '', 'date': '', 'attachments': []}
+                        database.insert_email(error_data, "ERROR", error=str(e))
                         report_generator.record_email(
-                            {'sender': '', 'subject': '', 'date': '', 'attachments': []}, 
+                            error_data, 
                             "ERROR", 
                             error=str(e)
                         )
@@ -101,6 +119,8 @@ def main():
     if summary_report:
         logging.info(f"Summary report saved: {summary_report}")
 
+    # Close database connection
+    database.close()
     logging.info("Email ingestion pipeline finished")
 
 

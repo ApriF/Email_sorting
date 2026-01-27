@@ -41,6 +41,9 @@ attachments/
 reports/
 logs/
 *.log
+*.db
+*.sqlite
+*.sqlite3
 
 # IDE
 .vscode/
