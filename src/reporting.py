@@ -6,31 +6,21 @@ from collections import defaultdict
 
 
 class ReportGenerator:
-    """
-    Generates CSV reports of processed emails, categories, and statistics.
-    Creates weekly reports in output/reports/ directory.
-    """
+    """Generates CSV reports of processed emails and statistics."""
     
     def __init__(self, base_path="output/reports"):
-        
-        # Initialize the report generator.
-        
-        
         self.base_path = Path(base_path)
         self.base_path.mkdir(parents=True, exist_ok=True)
         
-        # Statistics tracking
         self.processed_emails = []
         self.category_counts = defaultdict(int)
         self.error_count = 0
         self.attachment_count = 0
         
-        logging.info(f"Report generator initialized with base path: {self.base_path}")
+        logging.info(f"Report generator initialized: {self.base_path}")
     
     def record_email(self, email_data, category, has_attachments=False, error=None):
-        
-         #Record a processed email for reporting.  
-     
+        """Record a processed email for reporting."""
         record = {
             'timestamp': datetime.now().isoformat(),
             'sender': email_data.get('sender', ''),
@@ -52,21 +42,16 @@ class ReportGenerator:
                 self.attachment_count += 1
     
     def generate_weekly_report(self):
-        
-        # Generate a weekly CSV report with all processed emails and statistics.
-        
-        
+        """Generate weekly CSV report with all processed emails."""
         if not self.processed_emails:
             logging.warning("No emails processed, skipping report generation")
             return None
         
-        # Generate filename with current week
         now = datetime.now()
         week_str = now.strftime("%Y-W%W")
         report_filename = f"email_report_{week_str}.csv"
         report_path = self.base_path / report_filename
         
-        # Write CSV report
         try:
             with open(report_path, 'w', newline='', encoding='utf-8') as csvfile:
                 fieldnames = [
@@ -87,9 +72,7 @@ class ReportGenerator:
             return None
     
     def generate_summary_report(self):
-        
-        # Generate a summary CSV report with category statistics.
-        
+        """Generate summary CSV report with category statistics."""
         if not self.processed_emails:
             return None
         
@@ -116,7 +99,6 @@ class ReportGenerator:
                             'percentage': f"{percentage:.2f}%"
                         })
                 
-                # Add error row if there were errors
                 if self.error_count > 0:
                     error_percentage = (self.error_count / len(self.processed_emails)) * 100
                     writer.writerow({
@@ -125,7 +107,6 @@ class ReportGenerator:
                         'percentage': f"{error_percentage:.2f}%"
                     })
                 
-                # Add totals row
                 writer.writerow({
                     'category': 'TOTAL',
                     'count': len(self.processed_emails),
@@ -133,10 +114,10 @@ class ReportGenerator:
                 })
             
             logging.info(f"Summary report generated: {summary_path}")
-            logging.info(f"Total emails processed: {len(self.processed_emails)}")
-            logging.info(f"Categories: {dict(self.category_counts)}")
-            logging.info(f"Attachments: {self.attachment_count}")
-            logging.info(f"Errors: {self.error_count}")
+            logging.info(f"Total emails: {len(self.processed_emails)}, "
+                        f"Categories: {dict(self.category_counts)}, "
+                        f"Attachments: {self.attachment_count}, "
+                        f"Errors: {self.error_count}")
             
             return summary_path
             
@@ -145,10 +126,7 @@ class ReportGenerator:
             return None
     
     def generate_reports(self):
-        
-        # Generate both weekly and summary reports.
-        
-        
+        """Generate both weekly and summary reports."""
         weekly = self.generate_weekly_report()
         summary = self.generate_summary_report()
         return weekly, summary
