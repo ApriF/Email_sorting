@@ -1,12 +1,9 @@
-from imap.client import IMAPClient, IMAPClientError
-from utils.logger import setup_logger
 import logging
 
-import parser.email_parser as parser
-import parser.classification as category
-from reporting.attachment import AttachmentHandler
-from reporting.reporting import ReportGenerator
-from reporting.database import EmailDatabase
+from utils import setup_logger
+from imap import IMAPClient, IMAPClientError
+from parser import parse_email, classify_email
+from reporting import AttachmentHandler, ReportGenerator, EmailDatabase
 
 def main():
     setup_logger()
@@ -21,7 +18,7 @@ def main():
         with IMAPClient() as client:
             client.select_mailbox("INBOX")
 
-            email_ids = client.search("UNSEEN")
+            email_ids = client.search("SEEN")
             logging.info(f"{len(email_ids)} unread emails found")
 
             for email_id in email_ids:
@@ -30,10 +27,10 @@ def main():
                     logging.info(f"Email {email_id.decode()} fetched")
 
                     # Parse email
-                    email_data = parser.parse_email(raw_email)
+                    email_data = parse_email(raw_email)
                     
                     # Classify email
-                    email_category = category.classify_email(email_data)
+                    email_category = classify_email(email_data)
 
                     # Log email information
                     logging.info(f"Sender: {email_data['sender']}")
