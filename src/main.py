@@ -2,7 +2,7 @@ import logging
 
 from utils import setup_logger
 from imap import IMAPClient, IMAPClientError
-from parser import parse_email, classify_email
+from parser import EmailParser, EmailClassifier
 from reporting import AttachmentHandler, ReportGenerator, EmailDatabase
 
 def main():
@@ -10,6 +10,8 @@ def main():
     logging.info("Starting email ingestion pipeline")
 
     # Initialize handlers
+    parser = EmailParser()
+    classifier = EmailClassifier()
     attachment_handler = AttachmentHandler()
     report_generator = ReportGenerator()
     database = EmailDatabase()
@@ -27,10 +29,10 @@ def main():
                     logging.info(f"Email {email_id.decode()} fetched")
 
                     # Parse email
-                    email_data = parse_email(raw_email)
+                    email_data = parser.parse_email(raw_email)
                     
                     # Classify email
-                    email_category = classify_email(email_data)
+                    email_category = classifier.classify_email(email_data)
 
                     # Log email information
                     logging.info(f"Sender: {email_data['sender']}")

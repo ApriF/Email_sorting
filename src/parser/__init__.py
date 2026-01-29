@@ -1,4 +1,4 @@
-from .email_parser import parse_email
-from .classification import classify_email
+from .email_parser import EmailParser
+from .classification import EmailClassifier
 
-__all__ = ["parse_email", "classify_email"]
+__all__ = ["EmailParser", "EmailClassifier"]
