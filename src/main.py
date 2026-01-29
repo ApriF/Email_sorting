@@ -1,3 +1,5 @@
+import argparse
+import sys
 import logging
 
 from utils import setup_logger
@@ -5,9 +7,15 @@ from imap import IMAPClient, IMAPClientError
 from parser import EmailParser, EmailClassifier
 from reporting import AttachmentHandler, ReportGenerator, EmailDatabase
 
-def main():
+def run_pipeline(mailbox="INBOX", status="UNSEEN", limit=None):
+    """
+    Core ingestion logic.
+    :param mailbox: The IMAP folder to scan
+    :param status: The search criteria (UNSEEN, SEEN, ALL, etc.)
+    :param limit: Maximum number of emails to process
+    """
     setup_logger()
-    logging.info("Starting email ingestion pipeline")
+    logging.info("Starting email ingestion pipeline [Mailbox: {mailbox}] [Status: {status}]")
 
     # Initialize handlers
     parser = EmailParser()
@@ -18,12 +26,20 @@ def main():
 
     try:
         with IMAPClient() as client:
-            client.select_mailbox("INBOX")
+            client.select_mailbox(mailbox)
 
-            email_ids = client.search("SEEN")
-            logging.info(f"{len(email_ids)} unread emails found")
+            email_ids = client.search(status)
+            if not email_ids:
+                logging.info(f"No emails found matching criteria: {status}")
+                return
+
+            if limit:
+                email_ids = email_ids[:limit]
+            
+            logging.info(f"{len(email_ids)} emails with status: {status} found to process")
 
             for email_id in email_ids:
+                raw_email = None
                 try:
                     raw_email = client.fetch_email(email_id)
                     logging.info(f"Email {email_id.decode()} fetched")
@@ -81,7 +97,8 @@ def main():
                     logging.info("-" * 40)  # Visual separator
 
                     # Mark email as read after successful processing
-                    client.mark_as_read(email_id)
+                    if status.upper() == "UNSEEN":
+                        client.mark_as_read(email_id)
                 
                 except Exception as e:
                     logging.error(f"Failed to process email {email_id}: {e}", exc_info=True)
@@ -121,6 +138,42 @@ def main():
     database.close()
     logging.info("Email ingestion pipeline finished")
 
+def main():
+    arg_parser = argparse.ArgumentParser(
+        description="Ingest, classify, and report on emails from an IMAP server.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    
+    arg_parser.add_argument(
+        "-m", "--mailbox", 
+        default="INBOX", 
+        help="The IMAP mailbox to check"
+    )
+    
+    arg_parser.add_argument(
+        "-s", "--status", 
+        default="UNSEEN", 
+        choices=["UNSEEN", "SEEN", "ALL", "FLAGGED", "DELETED"],
+        help="Search criteria for emails"
+    )
+    
+    arg_parser.add_argument(
+        "-l", "--limit", 
+        type=int, 
+        help="Maximum number of emails to process"
+    )
+    
+    args = arg_parser.parse_args()
+
+    try:
+        run_pipeline(
+            mailbox=args.mailbox, 
+            status=args.status, 
+            limit=args.limit
+        )
+    except KeyboardInterrupt:
+        print("\nProcess interrupted by user. Exiting...")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

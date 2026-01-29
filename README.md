@@ -12,7 +12,7 @@ Automated email classification and analysis system that connects to IMAP, classi
 
 ## Quick Start
 
-1. **Install dependencies:**
+1. **Install dependencies in a virtual enviroment:**
    ```bash
    pip install -r requirements.txt
    ```
@@ -30,7 +30,15 @@ Automated email classification and analysis system that connects to IMAP, classi
    python src/main.py
    ```
 
-4. **Run tests:**
+4. **CLI Usage and flags:**
+   You can customize the ingestion process using the following flags:
+   | Flag | Long Name   | Description                                             | Default  |               
+   |-----:|-------------|---------------------------------------------------------|----------|
+   | `-m` | `--mailbox` | The IMAP folder to scan (e.g., INBOX, Junk, Archive).   | `INBOX`  |
+   | `-s` | `--status`  | Email filter: UNSEEN, SEEN, ALL, FLAGGED, DELETED.      | `UNSEEN` |
+   | `-l` | `--limit`   | Maximum number of emails to process in the current run. | `None`   |
+
+5. **Run tests:**
    ```bash
    pytest
    ```
@@ -40,23 +48,24 @@ Automated email classification and analysis system that connects to IMAP, classi
 ```
 Email_sorting/
 ├── src/
-│   ├── main.py              # Main entry point
+│   ├── main.py               # Main entry point
 │   ├── imap/
-│   │   └── client.py        # IMAP connection handler
+│   │   └── client.py         # IMAP connection handler
 │   ├── parser/
-│   │   ├── email_parser.py  # Email parsing
+│   │   ├── email_parser.py   # Email parsing
 │   │   └── classification.py # Classification rules
 │   ├── reporting/
-│   │   ├── attachment.py        # Attachment handler
-│   │   ├── reporting.py         # Report generator
-│   │   └── database.py         # sql database
+│   │   ├── attachment.py     # Attachment handler
+│   │   ├── reporting.py      # Report generator
+│   │   └── database.py       # sql database
 │   └── utils/
-│       └── logger.py        # Logging setup
-├── tests/                   # Test suite
-├── output/                  # Generated files
-│   ├── attachments/         # Saved attachments by category
-│   └── reports/            # CSV reports
-└── requirements.txt        # Dependencies
+│       └── logger.py         # Logging setup
+├── tests/                    # Test suite
+├── output/                   # Generated files
+│   ├── attachments/          # Saved attachments by category
+│   ├── reports/              # CSV reports
+│   └── email.db              # Database      
+└── requirements.txt          # Dependencies
 ```
 
 
