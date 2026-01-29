@@ -29,6 +29,7 @@ venv/
 ENV/
 env/
 .conda/
+myvenv/
 
 # Environment variables
 .env
