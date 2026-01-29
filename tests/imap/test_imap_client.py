@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from src.imap.client import IMAPClient, IMAPClientError
+from imap import IMAPClient, IMAPClientError
 import imaplib
 
 

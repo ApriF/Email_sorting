@@ -4,7 +4,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 
-from parser.email_parser import parse_email
+from parser import EmailParser
+
+# Initialize handlers
+parser = EmailParser()
 
 @pytest.fixture
 def attachment_factory():
@@ -31,7 +34,7 @@ def test_simple_text_email():
     msg["Subject"] = "Hello"
     msg["From"] = "friend@test.com"
 
-    result = parse_email(msg.as_bytes())
+    result = parser.parse_email(msg.as_bytes())
 
     assert result["subject"] == "Hello"
     assert result["sender"] == "friend@test.com"
@@ -52,7 +55,7 @@ def test_single_attachment(attachment_factory):
         )
     )
 
-    result = parse_email(msg.as_bytes())
+    result = parser.parse_email(msg.as_bytes())
 
     assert result["attachments"] == ["invoice.pdf"]
 
@@ -69,7 +72,7 @@ def test_multiple_attachments(attachment_factory):
         attachment_factory("logo.png", "image/png", b"x")
     )
 
-    result = parse_email(msg.as_bytes())
+    result = parser.parse_email(msg.as_bytes())
 
     assert set(result["attachments"]) == {"specs.pdf", "logo.png"}
 
@@ -87,7 +90,7 @@ def test_attachment_missing_filename(attachment_factory):
         )
     )
 
-    result = parse_email(msg.as_bytes())
+    result = parser.parse_email(msg.as_bytes())
 
     # Should not crash and should ignore nameless attachment
     assert isinstance(result["attachments"], list)
@@ -98,7 +101,7 @@ def test_html_only_email():
     msg = MIMEText("<p>Hello <b>world</b></p>", "html")
     msg["Subject"] = "HTML only"
 
-    result = parse_email(msg.as_bytes())
+    result = parser.parse_email(msg.as_bytes())
 
     assert "Hello" in result["body"]
 
@@ -116,7 +119,7 @@ def test_header_decoding(subject, sender):
     msg["Subject"] = subject
     msg["From"] = sender
 
-    result = parse_email(msg.as_bytes())
+    result = parser.parse_email(msg.as_bytes())
 
     assert isinstance(result["subject"], str)
     assert isinstance(result["sender"], str)

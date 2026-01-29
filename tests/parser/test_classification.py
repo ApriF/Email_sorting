@@ -1,5 +1,8 @@
 import pytest
-from parser.classification import classify_email
+from parser import EmailClassifier
+
+# Initialize handlers
+classifier = EmailClassifier()
 
 @pytest.mark.parametrize(
     "data, expected",
@@ -151,7 +154,7 @@ from parser.classification import classify_email
 )
 
 def test_classification_rules(data, expected):
-    assert classify_email(data) == expected
+    assert classifier.classify_email(data) == expected
 
 
 def test_rule_precedence():
@@ -166,7 +169,7 @@ def test_rule_precedence():
         "sender": "system@company.com",
     }
 
-    assert classify_email(data) == "Finance"
+    assert classifier.classify_email(data) == "Finance"
 
 def test_subject_weight_wins():
     """
@@ -179,7 +182,7 @@ def test_subject_weight_wins():
         "body": "Here is your invoice for the trip.",
         "sender": "airline@travel.com",
     }
-    assert classify_email(data) == "Travel"
+    assert classifier.classify_email(data) == "Travel"
 
 def test_general_fallback():
     data = {
@@ -188,7 +191,7 @@ def test_general_fallback():
         "sender": "friend@gmail.com",
     }
 
-    assert classify_email(data) == "General"
+    assert classifier.classify_email(data) == "General"
 
 def test_regex_boundaries_safety():
     """
@@ -203,7 +206,7 @@ def test_regex_boundaries_safety():
     # If regex \b was missing, this would be 'Marketing' 
     # Because it's internal sender and no other keywords match, 
     # it should likely be 'Internal' or 'General'.
-    assert classify_email(data) != "Marketing"
+    assert classifier.classify_email(data) != "Marketing"
 
 def test_case_insensitivity():
     """
@@ -214,4 +217,4 @@ def test_case_insensitivity():
         "body": "Please PAY immediately",
         "sender": "billing@vendor.com",
     }
-    assert classify_email(data) == "Finance"
+    assert classifier.classify_email(data) == "Finance"
