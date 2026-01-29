@@ -38,8 +38,8 @@ Automated email classification and analysis system that connects to IMAP, classi
    | `-s` | `--status`  | Email filter: UNSEEN, SEEN, ALL, FLAGGED, DELETED       | `UNSEEN` |
    | `-l` | `--limit`   | Maximum number of emails to process in the current run  | `None`   |
    
-   ## Examples:
-   ### Process the 10 most recent unread emails
+   ### Examples:
+   - Process the 10 most recent unread emails
    ```bash
    python src/main.py -l 10
    ```
