@@ -11,20 +11,20 @@ IMAP_PORT = int(os.getenv("IMAP_PORT"))
 EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
-# 1. Connexion
+
 mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
 mail.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
 print("✅ Connecté au serveur IMAP")
 
-# 2. Sélection de la boîte
+
 mail.select("INBOX")
 
-# 3. Recherche des emails non lus
+
 status, messages = mail.search(None, "UNSEEN")
 email_ids = messages[0].split()
 print(f"📨 {len(email_ids)} emails non lus")
 
-# 4. Lire les 5 derniers
+
 for eid in email_ids[-5:]:
     status, data = mail.fetch(eid, "(RFC822)")
     raw_email = data[0][1]
@@ -40,6 +40,6 @@ for eid in email_ids[-5:]:
     date = msg.get("Date")
     print(f"✉️ {sender} | {subject} | {date}")
 
-# 5. Déconnexion
+
 mail.logout()
 print(" Deconnection")
