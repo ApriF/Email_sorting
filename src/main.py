@@ -4,9 +4,9 @@ import logging
 
 import parser.email_parser as parser
 import parser.classification as category
-from attachment import AttachmentHandler
-from reporting import ReportGenerator
-from database import EmailDatabase
+from reporting.attachment import AttachmentHandler
+from reporting.reporting import ReportGenerator
+from reporting.database import EmailDatabase
 
 def main():
     setup_logger()
