@@ -34,10 +34,15 @@ Automated email classification and analysis system that connects to IMAP, classi
    You can customize the ingestion process using the following flags:
    | Flag | Long Name   | Description                                             | Default  |               
    |-----:|-------------|---------------------------------------------------------|----------|
-   | `-m` | `--mailbox` | The IMAP folder to scan (e.g., INBOX, Junk, Archive).   | `INBOX`  |
-   | `-s` | `--status`  | Email filter: UNSEEN, SEEN, ALL, FLAGGED, DELETED.      | `UNSEEN` |
-   | `-l` | `--limit`   | Maximum number of emails to process in the current run. | `None`   |
-
+   | `-m` | `--mailbox` | The IMAP folder to scan (e.g., INBOX).                  | `INBOX`  |
+   | `-s` | `--status`  | Email filter: UNSEEN, SEEN, ALL, FLAGGED, DELETED       | `UNSEEN` |
+   | `-l` | `--limit`   | Maximum number of emails to process in the current run  | `None`   |
+   
+   ## Examples:
+   ### Process the 10 most recent unread emails
+   ```bash
+   python src/main.py -l 10
+   ```
 5. **Run tests:**
    ```bash
    pytest
