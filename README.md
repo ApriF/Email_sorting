@@ -46,8 +46,10 @@ Email_sorting/
 │   ├── parser/
 │   │   ├── email_parser.py  # Email parsing
 │   │   └── classification.py # Classification rules
-│   ├── attachment.py        # Attachment handler
-│   ├── reporting.py         # Report generator
+│   ├── reporting/
+│   │   ├── attachment.py        # Attachment handler
+│   │   ├── reporting.py         # Report generator
+│   │   └── database.py         # sql database
 │   └── utils/
 │       └── logger.py        # Logging setup
 ├── tests/                   # Test suite
