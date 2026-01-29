@@ -41,8 +41,8 @@ class ReportGenerator:
             if has_attachments:
                 self.attachment_count += 1
     
-    def generate_weekly_report(self):
-        """Generate weekly CSV report with all processed emails."""
+    def generate_detail_report(self):
+        """Generate one CSV with all emails, full columns, sorted by category then date then subject."""
         if not self.processed_emails:
             logging.warning("No emails processed, skipping report generation")
             return None
@@ -51,24 +51,27 @@ class ReportGenerator:
         week_str = now.strftime("%Y-W%W")
         report_filename = f"email_report_{week_str}.csv"
         report_path = self.base_path / report_filename
+        fieldnames = [
+            'timestamp', 'sender', 'subject', 'date',
+            'category', 'has_attachments', 'attachment_count', 'error'
+        ]
         
         try:
+            sorted_emails = sorted(
+                self.processed_emails,
+                key=lambda r: (r['category'], r.get('date', ''), r.get('subject', ''))
+            )
             with open(report_path, 'w', newline='', encoding='utf-8') as csvfile:
-                fieldnames = [
-                    'timestamp', 'sender', 'subject', 'date', 
-                    'category', 'has_attachments', 'attachment_count', 'error'
-                ]
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                
                 writer.writeheader()
-                for record in self.processed_emails:
+                for record in sorted_emails:
                     writer.writerow(record)
             
-            logging.info(f"Weekly report generated: {report_path}")
+            logging.info(f"Detail report generated: {report_path}")
             return report_path
             
         except Exception as e:
-            logging.error(f"Failed to generate weekly report: {e}")
+            logging.error(f"Failed to generate detail report: {e}")
             return None
     
     def generate_summary_report(self):
@@ -131,32 +134,11 @@ class ReportGenerator:
             logging.error(f"Failed to generate summary report: {e}")
             return None
 
-    def generate_repartition_report(self):
-        if not self.processed_emails:
-            return None
-        week_str = datetime.now().strftime("%Y-W%W")
-        repartition_path = self.base_path / f"repartition_report_{week_str}.csv"
-        fieldnames = ['category', 'sender', 'subject', 'date', 'has_attachments']
-        try:
-            sorted_emails = sorted(
-                self.processed_emails,
-                key=lambda r: (r['category'], r.get('date', ''), r.get('subject', '')))
-            with open(repartition_path, 'w', newline='', encoding='utf-8') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
-                writer.writeheader()
-                for record in sorted_emails:
-                    writer.writerow({k: record.get(k, False if k == 'has_attachments' else '') for k in fieldnames})
-            logging.info(f"Repartition report generated: {repartition_path}")
-            return repartition_path
-        except Exception as e:
-            logging.error(f"Failed to generate repartition report: {e}")
-            return None
-
     def generate_reports(self):
+        """Generate detail report (all emails, sorted by category) and summary report."""
         return (
-            self.generate_weekly_report(),
+            self.generate_detail_report(),
             self.generate_summary_report(),
-            self.generate_repartition_report(),
         )
     
     def reset(self):

@@ -131,7 +131,7 @@ def run_pipeline(mailbox="INBOX", status="UNSEEN", limit=None, domain=None):
 
     logging.info("Generating reports...")
     for name, path in zip(
-        ("Weekly", "Summary", "Repartition"),
+        ("Detail", "Summary"),
         report_generator.generate_reports(),
     ):
         if path:

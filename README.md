@@ -8,7 +8,7 @@ Automated email classification and analysis system that connects to IMAP, classi
 - **Email Parsing** - Extracts sender, subject, content, and attachments
 - **Classification** - Rule-based categorization into 8 categories
 - **Attachment Management** - Saves attachments to categorized folders
-- **Reporting** - Generates weekly CSV reports with statistics
+- **Reporting** - Generates detail CSV (all emails, sorted by category) and summary CSV (statistics)
 
 ## Quick Start
 
@@ -101,7 +101,9 @@ The system classifies emails into:
 ## Output
 
 - **Attachments:** `output/attachments/{category}/filename.ext`
-- **Reports:** `output/reports/email_report_YYYY-WWW.csv` and `summary_report_YYYY-WWW.csv`
+- **Reports:**  
+  - `email_report_YYYY-WWW.csv` — one row per email (full detail), sorted by category, date, subject  
+  - `summary_report_YYYY-WWW.csv` — category counts and percentages
 
 ## Requirements
 
