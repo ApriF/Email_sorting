@@ -21,9 +21,9 @@ class IMAPClient:
         if not all([self.server, self.email, self.password]):
             raise IMAPClientError("Configuration IMAP incomplète")
 
-    # --------------------
+    
     # Connexion
-    # --------------------
+    
     def connect(self):
         try:
             logging.info("Connecting to IMAP server...")
@@ -40,18 +40,18 @@ class IMAPClient:
             self.conn.logout()
             self.conn = None
 
-    # --------------------
+    
     # Mailbox
-    # --------------------
+    
     def select_mailbox(self, mailbox="INBOX"):
         self._ensure_connection()
         status, _ = self.conn.select(mailbox)
         if status != "OK":
             raise IMAPClientError(f"Cannot select mailbox: {mailbox}")
 
-    # --------------------
+    
     # Search
-    # --------------------
+    
     def search(self, criteria="ALL"):
         self._ensure_connection()
         status, messages = self.conn.search(None, criteria)
@@ -59,9 +59,9 @@ class IMAPClient:
             raise IMAPClientError("Search failed")
         return messages[0].split()
 
-    # --------------------
+    
     # Fetch
-    # --------------------
+    
     def fetch_email(self, email_id):
         self._ensure_connection()
         try:
@@ -74,16 +74,16 @@ class IMAPClient:
             self._reconnect()
             return self.fetch_email(email_id)
 
-    # --------------------
+    
     # Flags / actions
-    # --------------------
+    
     def mark_as_read(self, email_id):
         self._ensure_connection()
         self.conn.store(email_id, "+FLAGS", "\\Seen")
 
-    # --------------------
+    
     # Internals
-    # --------------------
+    
     def _ensure_connection(self):
         if not self.conn:
             raise IMAPClientError("IMAP not connected")
@@ -92,9 +92,9 @@ class IMAPClient:
         self.logout()
         self.connect()
 
-    # --------------------
+    
     # Context manager
-    # --------------------
+    
     def __enter__(self):
         self.connect()
         return self
