@@ -1,9 +1,15 @@
+import os
 import re
 from collections import defaultdict
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class EmailClassifier:
-    def __init__(self, internal_domain="@mycompany.com"):
-        self.internal_domain = internal_domain.lower()
+    def __init__(self):
+        # Default to a generic placeholder if the .env key is missing
+        self.internal_domain = os.getenv("INTERNAL_DOMAIN", "@mycompany.com").lower()
+
         self.rules = {
             "Security": ["security", "verification", "auth", "2fa", "sign-in", "password"],
             "Finance": ["invoice", "receipt", "bill", "payment", "transfer", "order #"],
