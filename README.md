@@ -39,10 +39,23 @@ Automated email classification and analysis system that connects to IMAP, classi
    | `-l` | `--limit`   | Maximum number of emails to process in the current run  | `None`   |
    
    #### Examples:
-   - Process the 10 most recent unread emails
+   - Process the 10 most recent unread emails:
    ```bash
    python src/main.py -l 10
    ```
+   - Scan only read emails:
+   ```bash
+   python src/main.py -s SEEN
+   ```
+   - Process only 5 flagged emails:
+   ```bash
+   python src/main.py -l 5 -s FLAGGED
+   ```
+   - For more information run:
+   ´´´bash
+   python src/main.py -h
+   ``` 
+
 5. **Run tests:**
    ```bash
    pytest
