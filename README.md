@@ -37,6 +37,7 @@ Automated email classification and analysis system that connects to IMAP, classi
    | `-m` | `--mailbox` | The IMAP folder to scan (e.g., INBOX).                  | `INBOX`  |
    | `-s` | `--status`  | Email filter: UNSEEN, SEEN, ALL, FLAGGED, DELETED       | `UNSEEN` |
    | `-l` | `--limit`   | Maximum number of emails to process in the current run  | `None`   |
+   | `-d` | `--domain`  | Set domain for 'Internal' classification                | `None`   |
    
    #### Examples:
    - Process the 10 most recent unread emails:
@@ -50,6 +51,10 @@ Automated email classification and analysis system that connects to IMAP, classi
    - Process only 5 flagged emails:
    ```bash
    python email_sorter -l 5 -s FLAGGED
+   ```
+   - Choose a custom domain, from which emails will be classified as "Internal"
+   ```bash
+   python email_sorter -d @custom.com
    ```
    - For more information run:
    ```bash
