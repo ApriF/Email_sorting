@@ -130,12 +130,34 @@ class ReportGenerator:
         except Exception as e:
             logging.error(f"Failed to generate summary report: {e}")
             return None
-    
+
+    def generate_repartition_report(self):
+        if not self.processed_emails:
+            return None
+        week_str = datetime.now().strftime("%Y-W%W")
+        repartition_path = self.base_path / f"repartition_report_{week_str}.csv"
+        fieldnames = ['category', 'sender', 'subject', 'date', 'has_attachments']
+        try:
+            sorted_emails = sorted(
+                self.processed_emails,
+                key=lambda r: (r['category'], r.get('date', ''), r.get('subject', '')))
+            with open(repartition_path, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
+                writer.writeheader()
+                for record in sorted_emails:
+                    writer.writerow({k: record.get(k, False if k == 'has_attachments' else '') for k in fieldnames})
+            logging.info(f"Repartition report generated: {repartition_path}")
+            return repartition_path
+        except Exception as e:
+            logging.error(f"Failed to generate repartition report: {e}")
+            return None
+
     def generate_reports(self):
-        """Generate both weekly and summary reports."""
-        weekly = self.generate_weekly_report()
-        summary = self.generate_summary_report()
-        return weekly, summary
+        return (
+            self.generate_weekly_report(),
+            self.generate_summary_report(),
+            self.generate_repartition_report(),
+        )
     
     def reset(self):
         """Reset statistics for a new reporting period."""

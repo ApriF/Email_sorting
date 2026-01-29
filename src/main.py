@@ -110,14 +110,13 @@ def main():
     except Exception as e:
         logging.exception("Unexpected error occurred")
 
-    # Generate reports at the end
     logging.info("Generating reports...")
-    weekly_report, summary_report = report_generator.generate_reports()
-    
-    if weekly_report:
-        logging.info(f"Weekly report saved: {weekly_report}")
-    if summary_report:
-        logging.info(f"Summary report saved: {summary_report}")
+    for name, path in zip(
+        ("Weekly", "Summary", "Repartition"),
+        report_generator.generate_reports(),
+    ):
+        if path:
+            logging.info(f"{name} report saved: {path}")
 
     # Close database connection
     database.close()
