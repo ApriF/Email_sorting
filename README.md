@@ -52,7 +52,7 @@ Automated email classification and analysis system that connects to IMAP, classi
    python src/main.py -l 5 -s FLAGGED
    ```
    - For more information run:
-   ´´´bash
+   ```bash
    python src/main.py -h
    ``` 
 
