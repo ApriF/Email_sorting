@@ -27,7 +27,7 @@ Automated email classification and analysis system that connects to IMAP, classi
 
 3. **Run the application:**
    ```bash
-   python src/main.py
+   python email_sorter
    ```
 
 4. **CLI Usage and flags:**
@@ -41,19 +41,19 @@ Automated email classification and analysis system that connects to IMAP, classi
    #### Examples:
    - Process the 10 most recent unread emails:
    ```bash
-   python src/main.py -l 10
+   python email_sorter -l 10
    ```
    - Scan only read emails:
    ```bash
-   python src/main.py -s SEEN
+   python email_sorter -s SEEN
    ```
    - Process only 5 flagged emails:
    ```bash
-   python src/main.py -l 5 -s FLAGGED
+   python email_sorter -l 5 -s FLAGGED
    ```
    - For more information run:
    ```bash
-   python src/main.py -h
+   python email_sorter -h
    ``` 
 
 5. **Run tests:**
@@ -65,7 +65,7 @@ Automated email classification and analysis system that connects to IMAP, classi
 
 ```
 Email_sorting/
-├── src/
+├── email_sorter/
 │   ├── main.py               # Main entry point
 │   ├── imap/
 │   │   └── client.py         # IMAP connection handler
