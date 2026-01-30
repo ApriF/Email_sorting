@@ -23,6 +23,7 @@ Automated email classification and analysis system that connects to IMAP, classi
    IMAP_PORT=993
    EMAIL_ADDRESS=your-email@gmail.com
    EMAIL_PASSWORD=your-app-password
+   INTERNAL_DOMAIN=@mycompany.com
    ```
 
 3. **Run the application:**
