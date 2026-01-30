@@ -12,7 +12,6 @@ def env_vars(monkeypatch):
     monkeypatch.setenv("EMAIL_PASSWORD", "password")
 
 
-
 def test_init_missing_config(monkeypatch):
     monkeypatch.delenv("IMAP_SERVER", raising=False)
 
@@ -24,7 +23,6 @@ def test_init_ok(env_vars):
     client = IMAPClient()
     assert client.server == "imap.test.com"
     assert client.port == 993
-
 
 
 @patch("imaplib.IMAP4_SSL")
@@ -70,7 +68,6 @@ def test_select_mailbox_fail(env_vars):
         client.select_mailbox("INBOX")
 
 
-
 def test_search_ok(env_vars):
     client = IMAPClient()
     client.conn = MagicMock()
@@ -87,7 +84,6 @@ def test_search_fail(env_vars):
 
     with pytest.raises(IMAPClientError):
         client.search()
-
 
 
 def test_fetch_email_ok(env_vars):
@@ -123,7 +119,6 @@ def test_fetch_email_reconnect(env_vars):
     assert raw == b"RAW"
 
 
-
 def test_mark_as_read(env_vars):
     client = IMAPClient()
     client.conn = MagicMock()
@@ -131,7 +126,6 @@ def test_mark_as_read(env_vars):
     client.mark_as_read(b"1")
 
     client.conn.store.assert_called_once_with(b"1", "+FLAGS", "\\Seen")
-
 
 
 def test_ensure_connection_fail(env_vars):

@@ -6,6 +6,7 @@ from parser import EmailClassifier
 classifier_en = EmailClassifier()
 classifier_fr = EmailClassifier(language="fr")
 
+
 @pytest.mark.parametrize(
     "data, expected",
     [
@@ -26,7 +27,6 @@ classifier_fr = EmailClassifier(language="fr")
             },
             "Security",
         ),
-
         # finance
         (
             {
@@ -44,7 +44,6 @@ classifier_fr = EmailClassifier(language="fr")
             },
             "Finance",
         ),
-
         # marketing
         (
             {
@@ -62,7 +61,6 @@ classifier_fr = EmailClassifier(language="fr")
             },
             "Marketing",
         ),
-
         # job market
         (
             {
@@ -80,7 +78,6 @@ classifier_fr = EmailClassifier(language="fr")
             },
             "Job Market",
         ),
-
         # tech
         (
             {
@@ -98,7 +95,6 @@ classifier_fr = EmailClassifier(language="fr")
             },
             "Tech",
         ),
-
         # meetings
         (
             {
@@ -116,7 +112,6 @@ classifier_fr = EmailClassifier(language="fr")
             },
             "Meetings",
         ),
-
         # travel
         (
             {
@@ -134,7 +129,6 @@ classifier_fr = EmailClassifier(language="fr")
             },
             "Travel",
         ),
-
         # social
         (
             {
@@ -154,40 +148,63 @@ classifier_fr = EmailClassifier(language="fr")
         ),
     ],
 )
-
 def test_classification_rules(data, expected):
     assert classifier_en.classify_email(data) == expected
 
-@pytest.mark.parametrize("data, expected", [
-    # École / Université
-    (
-        {"subject": "Notes d'examens", "body": "Consultez votre EDT sur le portail", "sender": "admin@univ.fr"},
-        "École / Université"
-    ),
-    # Stages & Emploi
-    (
-        {"subject": "Offre de stage", "body": "Entretien pour le poste de développeur", "sender": "hr@startup.fr"},
-        "Stages & Emploi"
-    ),
-    # Voyages & Mobilité
-    (
-        {"subject": "Votre billet SNCF", "body": "Confirmation de votre trajet en train", "sender": "noreply@sncf.fr"},
-        "Voyages & Mobilité"
-    ),
-    # Achats & Services
-    (
-        {"subject": "Commande Amazon", "body": "Votre colis est en cours de livraison", "sender": "ship@amazon.fr"},
-        "Achats & Services"
-    ),
-    # Administratif personnel
-    (
-        {"subject": "Dossier Assurance", "body": "Veuillez envoyer votre attestation", "sender": "contact@axa.fr"},
-        "Administratif personnel"
-    ),
-])
 
+@pytest.mark.parametrize(
+    "data, expected",
+    [
+        # École / Université
+        (
+            {
+                "subject": "Notes d'examens",
+                "body": "Consultez votre EDT sur le portail",
+                "sender": "admin@univ.fr",
+            },
+            "École / Université",
+        ),
+        # Stages & Emploi
+        (
+            {
+                "subject": "Offre de stage",
+                "body": "Entretien pour le poste de développeur",
+                "sender": "hr@startup.fr",
+            },
+            "Stages & Emploi",
+        ),
+        # Voyages & Mobilité
+        (
+            {
+                "subject": "Votre billet SNCF",
+                "body": "Confirmation de votre trajet en train",
+                "sender": "noreply@sncf.fr",
+            },
+            "Voyages & Mobilité",
+        ),
+        # Achats & Services
+        (
+            {
+                "subject": "Commande Amazon",
+                "body": "Votre colis est en cours de livraison",
+                "sender": "ship@amazon.fr",
+            },
+            "Achats & Services",
+        ),
+        # Administratif personnel
+        (
+            {
+                "subject": "Dossier Assurance",
+                "body": "Veuillez envoyer votre attestation",
+                "sender": "contact@axa.fr",
+            },
+            "Administratif personnel",
+        ),
+    ],
+)
 def test_classification_fr(data, expected):
     assert classifier_fr.classify_email(data) == expected
+
 
 def test_rule_precedence():
     """
@@ -203,6 +220,7 @@ def test_rule_precedence():
 
     assert classifier_en.classify_email(data) == "Finance"
 
+
 def test_subject_weight_wins():
     """
     Subject has 'Flight' (Travel, +3).
@@ -210,11 +228,12 @@ def test_subject_weight_wins():
     Travel should win (3 > 1).
     """
     data = {
-        "subject": "Flight Confirmation", 
+        "subject": "Flight Confirmation",
         "body": "Here is your invoice for the trip.",
         "sender": "airline@travel.com",
     }
     assert classifier_en.classify_email(data) == "Travel"
+
 
 def test_general_fallback():
     data = {
@@ -224,6 +243,7 @@ def test_general_fallback():
     }
 
     assert classifier_en.classify_email(data) == "General"
+
 
 def test_regex_boundaries_safety():
     """
@@ -235,10 +255,11 @@ def test_regex_boundaries_safety():
         "body": "Let's meet at the coffee shop.",
         "sender": "boss@company.com",
     }
-    # If regex \b was missing, this would be 'Marketing' 
-    # Because it's internal sender and no other keywords match, 
+    # If regex \b was missing, this would be 'Marketing'
+    # Because it's internal sender and no other keywords match,
     # it should likely be 'Internal' or 'General'.
     assert classifier_en.classify_email(data) != "Marketing"
+
 
 def test_case_insensitivity():
     """
@@ -251,6 +272,7 @@ def test_case_insensitivity():
     }
     assert classifier_en.classify_email(data) == "Finance"
 
+
 def test_internal_domain_detection():
     """
     Test that the internal domain (from .env or default) overrides keywords.
@@ -258,25 +280,27 @@ def test_internal_domain_detection():
     # Force an internal domain check
     os.environ["INTERNAL_DOMAIN"] = "@ecole-mines.fr"
     cls = EmailClassifier(language="fr")
-    
+
     data = {
-        "subject": "Facture impayée", # Finance keyword
-        "body": "Relance paiement", 
+        "subject": "Facture impayée",  # Finance keyword
+        "body": "Relance paiement",
         "sender": "directeur@ecole-mines.fr",
     }
     # Even though it has Finance words, it's from an internal domain
     assert cls.classify_email(data) == "Internal"
+
 
 def test_french_subject_weighting():
     """
     Verify French scoring: Subject (3pts) > Body (1pt).
     """
     data = {
-        "subject": "Sécurité compte", # Sécurité (3)
-        "body": "Voici votre facture", # Achats (1)
+        "subject": "Sécurité compte",  # Sécurité (3)
+        "body": "Voici votre facture",  # Achats (1)
         "sender": "service@comptes.fr",
     }
     assert classifier_fr.classify_email(data) == "Sécurité & Comptes"
+
 
 def test_language_fallback():
     """

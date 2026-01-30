@@ -9,6 +9,7 @@ from parser import EmailParser
 # Initialize handlers
 parser = EmailParser()
 
+
 @pytest.fixture
 def attachment_factory():
     def _create(filename, content_type, data):
@@ -18,16 +19,14 @@ def attachment_factory():
         encoders.encode_base64(part)
 
         if filename:
-            part.add_header(
-                "Content-Disposition",
-                f'attachment; filename="{filename}"'
-            )
+            part.add_header("Content-Disposition", f'attachment; filename="{filename}"')
         else:
             part.add_header("Content-Disposition", "attachment")
 
         return part
 
     return _create
+
 
 def test_simple_text_email():
     msg = MIMEText("Just a simple message.")
@@ -65,12 +64,8 @@ def test_multiple_attachments(attachment_factory):
     msg["Subject"] = "Project Files"
     msg.attach(MIMEText("Here are the designs."))
 
-    msg.attach(
-        attachment_factory("specs.pdf", "application/pdf", b"x")
-    )
-    msg.attach(
-        attachment_factory("logo.png", "image/png", b"x")
-    )
+    msg.attach(attachment_factory("specs.pdf", "application/pdf", b"x"))
+    msg.attach(attachment_factory("logo.png", "image/png", b"x"))
 
     result = parser.parse_email(msg.as_bytes())
 

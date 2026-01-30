@@ -2,6 +2,7 @@ import email
 from email import policy
 from email.header import decode_header, make_header
 
+
 class EmailParser:
     def __init__(self, email_policy=policy.default):
         self.policy = email_policy
@@ -30,7 +31,9 @@ class EmailParser:
                     continue
 
                 content_type = part.get_content_type()
-                disposition = part.get_content_disposition()  # e.g., "attachment" or "inline"
+                disposition = (
+                    part.get_content_disposition()
+                )  # e.g., "attachment" or "inline"
 
                 # attachments
                 if disposition == "attachment":
