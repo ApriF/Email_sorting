@@ -7,7 +7,7 @@ from imap import IMAPClient, IMAPClientError
 from parser import EmailParser, EmailClassifier
 from reporting import AttachmentHandler, ReportGenerator, EmailDatabase
 
-def run_pipeline(mailbox="INBOX", status="UNSEEN", limit=None, domain=None):
+def run_pipeline(mailbox="INBOX", status="UNSEEN", limit=None, domain=None, language="en"):
     """
     Core ingestion logic.
     :param mailbox: The IMAP folder to scan
@@ -19,7 +19,7 @@ def run_pipeline(mailbox="INBOX", status="UNSEEN", limit=None, domain=None):
 
     # Initialize handlers
     parser = EmailParser()
-    classifier = EmailClassifier()
+    classifier = EmailClassifier(language=language)
     attachment_handler = AttachmentHandler()
     report_generator = ReportGenerator()
     database = EmailDatabase()
@@ -170,6 +170,13 @@ def main():
         "-d", "--domain", 
         help="Override the internal domain (e.g., @custom.com)"
     )
+
+    arg_parser.add_argument(
+        "-lang", "--language", 
+        choices=["en", "fr"], 
+        default="en",
+        help="Choose the language for classification rules (English or French)."
+    )
     
     args = arg_parser.parse_args()
 
@@ -178,7 +185,8 @@ def main():
             mailbox=args.mailbox, 
             status=args.status, 
             limit=args.limit,
-            domain=args.domain
+            domain=args.domain,
+            language=args.language
         )
     except KeyboardInterrupt:
         print("\nProcess interrupted by user. Exiting...")

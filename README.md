@@ -33,13 +33,13 @@ Automated email classification and analysis system that connects to IMAP, classi
 
 4. **CLI Usage and flags:**
    You can customize the ingestion process using the following flags:
-   | Flag | Long Name   | Description                                             | Default  |               
-   |-----:|-------------|---------------------------------------------------------|----------|
-   | `-m` | `--mailbox` | The IMAP folder to scan (e.g., INBOX).                  | `INBOX`  |
-   | `-s` | `--status`  | Email filter: UNSEEN, SEEN, ALL, FLAGGED, DELETED       | `UNSEEN` |
-   | `-l` | `--limit`   | Maximum number of emails to process in the current run  | `None`   |
-   | `-d` | `--domain`  | Set domain for 'Internal' classification                | `None`   |
-   
+   | Flag    | Long Name   | Description                                             | Default  |               
+   |---------|-------------|---------------------------------------------------------|----------|
+   | `-m`    | `--mailbox` | The IMAP folder to scan (e.g., INBOX).                  | `INBOX`  |
+   | `-s`    | `--status`  | Email filter: UNSEEN, SEEN, ALL, FLAGGED, DELETED       | `UNSEEN` |
+   | `-l`    | `--limit`   | Maximum number of emails to process in the current run  | `None`   |
+   | `-d`    | `--domain`  | Set domain for 'Internal' classification                | `None`   |
+   | `-lang` | `--language`| Select classification language                          | `en`     |
    #### Examples:
    - Process the 10 most recent unread emails:
    ```bash
@@ -53,9 +53,13 @@ Automated email classification and analysis system that connects to IMAP, classi
    ```bash
    python email_sorter -l 5 -s FLAGGED
    ```
-   - Choose a custom domain, from which emails will be classified as "Internal"
+   - Choose a custom domain, from which emails will be classified as "Internal":
    ```bash
    python email_sorter -d @custom.com
+   ```
+   - Sort unread emails using classification rules in French:
+   ```bash
+   python email_sorter -lang fr
    ```
    - For more information run:
    ```bash
